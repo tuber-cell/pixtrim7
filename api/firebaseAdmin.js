@@ -1,5 +1,5 @@
-// lib/firebaseAdmin.js
-import admin from "firebase-admin";
+// File: lib/firebaseAdmin.js
+const admin = require('firebase-admin');
 
 if (!admin.apps.length) {
   admin.initializeApp({
@@ -11,4 +11,4 @@ if (!admin.apps.length) {
   });
 }
 
-export default admin;
+module.exports = admin;

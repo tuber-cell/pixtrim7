@@ -1,7 +1,7 @@
-import crypto from 'crypto';
-import admin from '../firebaseAdmin.js'; // Use our Firebase Admin setup
+const crypto = require('crypto');
+const admin = require('../firebaseAdmin.js');
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -27,13 +27,12 @@ export default async function handler(req, res) {
       const firebaseUid = paymentData.notes?.firebaseUid;
 
       if (firebaseUid) {
-        // Optional: update Firestore to mark user as subscribed
         await admin.firestore().collection('users').doc(firebaseUid).set(
           {
             isSubscribed: true,
             subscriptionStatus: 'active',
             lastPaymentId: paymentData.id,
-            paymentAmount: paymentData.amount / 100, // in INR
+            paymentAmount: paymentData.amount / 100,
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           },
           { merge: true }
@@ -52,4 +51,4 @@ export default async function handler(req, res) {
     console.error('Webhook handler error:', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
-}
+};

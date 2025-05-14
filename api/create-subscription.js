@@ -1,12 +1,12 @@
-import Razorpay from 'razorpay';
-import admin from '../firebaseAdmin.js'; // this uses your Firebase Admin SDK
+const Razorpay = require('razorpay');
+const admin = require('../firebaseAdmin.js');
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
 
   const authHeader = req.headers.authorization || '';
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     const email = decoded.email;
 
     const subscription = await razorpay.subscriptions.create({
-      plan_id: 'plan_QUgLogdVgnZKjk', // Use your actual plan
+      plan_id: 'plan_QUgLogdVgnZKjk',
       customer_notify: 1,
       total_count: 12,
       notes: {
@@ -34,4 +34,4 @@ export default async function handler(req, res) {
     console.error('Subscription error:', err);
     return res.status(500).json({ error: 'Failed to create subscription' });
   }
-}
+};
