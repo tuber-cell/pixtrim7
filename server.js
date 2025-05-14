@@ -6,6 +6,9 @@ import subscriptionRoute from './routes/create-subscription.js';
 
 dotenv.config();
 
+console.log('RAZORPAY_KEY_ID:', process.env.RAZORPAY_KEY_ID);
+console.log('RAZORPAY_KEY_SECRET:', process.env.RAZORPAY_KEY_SECRET);
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 

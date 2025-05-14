@@ -1,6 +1,9 @@
 import express from 'express';
 import Razorpay from 'razorpay';
+import dotenv from 'dotenv';
 import admin from '../lib/firebaseAdmin.js';
+
+dotenv.config(); // ✅ load env variables
 
 const router = express.Router();
 
