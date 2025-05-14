@@ -7,8 +7,9 @@ const router = express.Router();
 router.post('/', async (req, res) => {
   const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
   const signature = req.headers['x-razorpay-signature'];
-  const rawBody = req.body;
+  const rawBody = req.body; // This is a Buffer because you used bodyParser.raw()
 
+  // HMAC needs raw buffer
   const expectedSignature = crypto
     .createHmac('sha256', webhookSecret)
     .update(rawBody)
@@ -18,7 +19,8 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: 'Invalid signature' });
   }
 
-  const parsed = JSON.parse(rawBody.toString());
+  // Parse body AFTER signature check
+  const parsed = JSON.parse(rawBody.toString()); 
   const event = parsed.event;
 
   try {
