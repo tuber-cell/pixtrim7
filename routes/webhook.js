@@ -1,14 +1,13 @@
-const crypto = require('crypto');
-const admin = require('../firebaseAdmin.js');
+import express from 'express';
+import crypto from 'crypto';
+import admin from '../lib/firebaseAdmin.js';
 
-module.exports = async (req, res) => {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+const router = express.Router();
 
+router.post('/', async (req, res) => {
   const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
   const signature = req.headers['x-razorpay-signature'];
-  const rawBody = JSON.stringify(req.body);
+  const rawBody = req.body;
 
   const expectedSignature = crypto
     .createHmac('sha256', webhookSecret)
@@ -19,11 +18,12 @@ module.exports = async (req, res) => {
     return res.status(400).json({ error: 'Invalid signature' });
   }
 
-  const event = req.body.event;
+  const parsed = JSON.parse(rawBody.toString());
+  const event = parsed.event;
 
   try {
     if (event === 'payment.captured') {
-      const paymentData = req.body.payload.payment.entity;
+      const paymentData = parsed.payload.payment.entity;
       const firebaseUid = paymentData.notes?.firebaseUid;
 
       if (firebaseUid) {
@@ -40,15 +40,13 @@ module.exports = async (req, res) => {
       }
 
       console.log('✅ Payment captured and Firebase updated');
-    } else if (event === 'payment.failed') {
-      console.warn('❌ Payment failed:', req.body.payload.payment.entity);
-    } else {
-      console.log('⚠️ Unhandled event type:', event);
     }
 
-    return res.status(200).json({ status: 'Webhook received' });
+    res.status(200).json({ status: 'Webhook received' });
   } catch (err) {
-    console.error('Webhook handler error:', err);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error(err);
+    res.status(500).json({ error: 'Webhook error' });
   }
-};
+});
+
+export default router;
