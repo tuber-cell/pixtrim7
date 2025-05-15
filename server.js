@@ -1,22 +1,20 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import cors from 'cors';
 import bodyParser from 'body-parser';
+import cors from 'cors'; // ✅ Import CORS
 import webhookRoute from './routes/webhook.js';
 import subscriptionRoute from './routes/create-subscription.js';
 
 dotenv.config();
 
-console.log('RAZORPAY_KEY_ID:', process.env.RAZORPAY_KEY_ID);
-console.log('RAZORPAY_KEY_SECRET:', process.env.RAZORPAY_KEY_SECRET);
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ✅ Enable CORS
+// ✅ Enable CORS for your frontend domain
 app.use(cors({
-  origin: ['http://localhost:5500', 'https://image-compressor-five-azure.vercel.app/subscription.html'], // replace with your actual frontend URL(s)
-  credentials: true
+  origin: 'https://image-compressor-five-azure.vercel.app', // 👈 your frontend URL
+  methods: ['GET', 'POST'],
+  credentials: true,
 }));
 
 // Parse raw body for webhook validation
