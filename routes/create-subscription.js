@@ -29,8 +29,14 @@ router.post('/', async (req, res) => {
       notes: { firebaseUid: userId, email },
     });
 
-    res.status(200).json({ subscriptionId: subscription.id });
-  } catch (err) {
+res.status(200).json({
+  subscriptionId: subscription.id,
+  key: process.env.RAZORPAY_KEY_ID, // ✅ send Razorpay public key
+  userEmail: email,
+  userName: decoded.name || 'Customer', // fallback if name not available
+});
+
+} catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Subscription creation failed' });
   }
