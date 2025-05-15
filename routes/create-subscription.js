@@ -22,31 +22,36 @@ router.post('/', async (req, res) => {
     const decoded = await admin.auth().verifyIdToken(idToken);
     const { uid: userId, email } = decoded;
 
-    // Fetch plan details
+    // ✅ Fetch plan details
     const plan = await razorpay.plans.fetch('plan_QUgLogdVgnZKjk');
 
-    // Optional: create a Razorpay customer
+    // ✅ Create customer
     const customer = await razorpay.customers.create({
       name: decoded.name || 'Customer',
       email,
       notes: { firebaseUid: userId },
     });
 
+    // ✅ Create subscription
     const subscription = await razorpay.subscriptions.create({
       plan_id: plan.id,
       customer_notify: 1,
       total_count: 12,
       customer: customer.id,
-      notes: { firebaseUid: userId, email },
+      notes: {
+        firebaseUid: userId,
+        email: email,
+      },
     });
 
+    // ✅ Send response
     res.status(200).json({
       subscriptionId: subscription.id,
       key: process.env.RAZORPAY_KEY_ID,
       userEmail: email,
       userName: decoded.name || 'Customer',
-      amount: plan.item.amount,          // e.g. 49900
-      currency: plan.item.currency,      // e.g. INR
+      amount: plan.item.amount,     // For frontend display (e.g. 49900)
+      currency: plan.item.currency, // INR
     });
 
   } catch (err) {
