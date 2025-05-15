@@ -23,7 +23,7 @@ router.post('/', async (req, res) => {
     const { uid: userId, email } = decoded;
 
     // ✅ Fetch the plan details
-    const plan = await razorpay.plans.fetch('plan_QUgLogdVgnZKjk');
+    const plan = await razorpay.plans.fetch('plan_QUfx6yPVGaXpfq');
 
     // ❌ REMOVE customer block if it's not required for the plan
     // const customer = await razorpay.customers.create({ ... });
