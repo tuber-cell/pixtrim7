@@ -25,10 +25,7 @@ router.post('/', async (req, res) => {
     // ✅ Fetch the plan details
     const plan = await razorpay.plans.fetch('plan_QUgLogdVgnZKjk');
 
-    // ❌ REMOVE customer block if it's not required for the plan
-    // const customer = await razorpay.customers.create({ ... });
-
-    // ✅ Create subscription without customer
+    // ✅ Create subscription
     const subscription = await razorpay.subscriptions.create({
       plan_id: plan.id,
       total_count: 12,
@@ -39,13 +36,23 @@ router.post('/', async (req, res) => {
       },
     });
 
+    // ✅ Save subscription details in Firestore
+    await admin.firestore().collection('subscriptions').doc(userId).set({
+      subscriptionId: subscription.id,
+      email: email,
+      startAt: subscription.start_at * 1000, // Unix to JS timestamp
+      endAt: subscription.end_at * 1000,
+      status: subscription.status,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
     res.status(200).json({
       subscriptionId: subscription.id,
       key: process.env.RAZORPAY_KEY_ID,
       userEmail: email,
       userName: decoded.name || 'Customer',
-      amount: plan.item.amount,     // 49900
-      currency: plan.item.currency, // INR
+      amount: plan.item.amount,
+      currency: plan.item.currency,
     });
 
   } catch (err) {
